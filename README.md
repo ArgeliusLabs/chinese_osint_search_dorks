@@ -8,7 +8,7 @@ This repository is a practical, bilingual playbook for doing that work well and 
 
 ## 📖 Read the guide
 
-**→ [`GUIDE.md`](GUIDE.md)** — the full field guide (28 sections).
+**→ [`guide.md`](guide.md)** — the full field guide (28 sections).
 
 Every Chinese query, keyword, and operator is paired with an English translation, so you can use it whether or not you read Chinese.
 
