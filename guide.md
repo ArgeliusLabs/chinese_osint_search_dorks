@@ -1984,6 +1984,9 @@ Do not automatically equate:
 | social-media repetition | independent corroboration |
 | search warning banner | proof of the reason every result is absent |
 | absence from search results | proof that the event or record does not exist |
+| English-name search hit or matching name field | confirmed Chinese legal entity |
+
+A dated example is [Currawong's English-name lookup study](https://currawongweb.com/verify/english-name-lookup-study/), measured on 12 August 2026 using 106 China-listed trailer makers from NHTSA vPIC. It separates returned candidates from matching English-name fields; neither is an independently confirmed legal identity. The selected sector, single provider and measurement date limit what can be inferred. Keep these distinctions in the evidence log rather than treating a name-match rate as an identity-verification rate.
 
 ## 23.4 Three-point identity test
 
