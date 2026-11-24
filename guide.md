@@ -1,11 +1,12 @@
 # China Web OSINT Search Dorks
 ## A Bilingual Field Guide to Baidu, Chinese-Language Query Pivots, Public Records, and Verification
 
-> **Version:** 1.0  
-> **Last reviewed:** 21 June 2026  
+> **Version:** 1.1  
+> **Editorial review:** 24 November 2026  
+> **Validation:** [Per-service documentation checks and live-test status](docs/validation.md); this date does not certify every query or portal  
 > **Publisher:** [Argelius Labs](https://argeliuslabs.com)  
-> **Author:** [Add your name or handle]  
-> **Contact:** [argeliuslabs.com](https://argeliuslabs.com) — or add a business email / repository issues link  
+> **Maintained by:** Argelius Labs and contributors  
+> **Contact:** [Repository issues](https://github.com/ArgeliusLabs/chinese_osint_search_dorks/issues)  
 > **License:** Creative Commons Attribution 4.0 International (CC BY 4.0) — see [`LICENSE`](LICENSE)  
 > **Audience:** OSINT students, investigators, journalists, researchers, analysts, due-diligence teams, and technical professionals  
 > **Scope:** Lawful research using information intentionally available to the public
@@ -48,7 +49,15 @@ The central lesson is simple:
 
 ---
 
+## Companion resources
+
+- [Offline worked procurement exercise and answer key](examples/procurement/README.md)
+- [Reusable evidence log and field definitions](templates/README.md)
+- [Operator and portal validation register](docs/validation.md), generated from [structured records](data/validation.json)
+- [Contribution and validation instructions](CONTRIBUTING.md) and [changelog](CHANGELOG.md)
+
 ## Contents
+
 
 - [1. Scope, ethics, and safety](#1-scope-ethics-and-safety)
 - [2. How to read the bilingual examples](#2-how-to-read-the-bilingual-examples)
@@ -333,8 +342,8 @@ Baidu's official Advanced Search page provides controls for all words, an exact 
 | `"phrase"` | Request an exact phrase | `"[目标公司全称]"` — `"[full legal company name]"` | Common and available through Baidu Advanced Search, but exactness can vary in practice. |
 | `-term` | Exclude a term | `"[目标公司全称]" -招聘` — company name excluding **recruiting/jobs** | Put a space before the minus and no space after it. |
 | `site:domain` | Restrict to a site or domain | `"[目标公司全称]" site:gov.cn` — company name on Chinese government domains | Do not put a space after `site:`. A sparse result does not prove the site lacks the material. |
-| `filetype:pdf` | Restrict by document type | `"[目标公司全称]" 年度报告 filetype:pdf` — company **annual report** PDFs | Try `pdf`, `doc`, `docx`, `xls`, `xlsx`, `ppt`, and `pptx` separately; coverage varies. |
-| `intitle:term` | Request a term in the page title | `intitle:中标公告 "[目标公司全称]"` — title contains **award notice** plus the company name | Commonly observed; confirm that the result titles actually contain the term. |
+| `filetype:pdf` | Restrict by document type | `"[目标公司全称]" 年度报告 filetype:pdf` — company **annual report** PDFs | Baidu's legacy help lists `pdf`, `doc`, `xls`, `ppt`, and `rtf`. Modern Office extensions are unverified here; test separately rather than assuming support.[^baidu-syntax] |
+| `intitle:term` | Request a term in the page title | `intitle:中标公告 "[目标公司全称]"` — title contains **award notice** plus the company name | Described in Baidu's legacy help; current live behavior is untested here. Confirm that result titles contain the term.[^baidu-syntax] |
 | URL-position filter | Request a term in the URL | Use Baidu Advanced Search's URL-position option | Prefer the official Advanced Search control if `inurl:` behaves inconsistently. |
 | Advanced Search UI | Combine fields without memorizing syntax | Baidu Advanced Search | Useful for date, language, file format, title, URL, and site filters. |
 
@@ -368,7 +377,7 @@ intitle:中标公告 "[目标公司全称]"
 
 **English translation:** result title contains **award notice**, with the company name elsewhere in the result.
 
-Then combine only the filters that visibly improve precision.
+Then combine only the filters that visibly improve precision. Record each check in the [validation register](docs/validation.md), including engine, exact query, access context, date, expected behavior, and actual observation. A documentation check establishes what a provider describes; it does not establish that a live query returned the expected results. Examples elsewhere in this guide are templates, not claims of current cross-engine support.
 
 ## 4.3 Operators are not evidence of completeness
 
@@ -1130,7 +1139,7 @@ Try these fallback approaches:
 
 - A filename can be misleading. Verify the issuing organization and document body.
 - Search-engine dates may reflect crawl or update time rather than publication time.
-- A draft may be labeled `征求意见稿` (**draft for public comment**), `草案` (**draft**), `试行` (**trial implementation**), or `暂行` (**interim**).
+- `征求意见稿` (**draft for public comment**) and `草案` (**draft**) indicate draft status. `试行` (**trial implementation**) and `暂行` (**interim**) do not by themselves mean draft: a formally issued instrument may already be in force. Check its issuing authority, effective date, scope, and any later amendment or repeal; see Section 23.2. For example, the formally issued Generative AI Interim Measures specify an effective date despite `暂行` in the title.[^interim-example]
 - Check whether a document was replaced, corrected, repealed, or superseded.
 - Spreadsheets may contain hidden sheets, filters, formulas, or multiple tabs. Review the full workbook safely.
 - Do not enable macros or active content in untrusted files.
@@ -1585,6 +1594,8 @@ Access, indexing, and full-text availability vary. Use bibliographic metadata to
 4. Search the project or facility name plus `环评` (**environmental impact assessment**), `批复` (**official approval**), and `竣工验收` (**completion acceptance**).
 5. Cross-check satellite imagery, street-level imagery where lawfully available, official planning documents, procurement records, and company disclosures.
 6. Record the date of each source; facilities open, close, expand, and relocate.
+7. Before transferring coordinates between maps, identify their coordinate reference system. GPS data commonly uses WGS84, Amap documents GCJ-02, and Baidu documents BD-09 and interface-specific alternatives. Copying numbers directly between incompatible systems can shift the plotted point.[^baidu-coordinates][^amap-coordinates]
+8. Preserve the original coordinates, coordinate order (longitude/latitude or latitude/longitude), source system, units, and source URL. If a conversion is needed, follow the provider's documented interface and applicable terms; record the target system, method/version, converted coordinates, and uncertainty separately. If the source system is unknown, mark it unknown rather than silently overlaying or converting it.
 
 ## 18.4 Location cautions
 
@@ -1778,7 +1789,7 @@ Use precise language when teaching this technique:
 
 Some political, religious, public-order, health, security, or socially sensitive searches may produce warning banners, curated results, reduced result sets, or different results across engines and locations.
 
-The example in the source slide shows the warning:
+The following warning text is retained as an illustrative translation example. No source slide, query, engine, or capture date accompanies it in this repository, so it is not evidence of current search behavior:
 
 ```text
 提高理性认知，远离邪教陷阱
@@ -1844,7 +1855,7 @@ Search engines are most useful when they lead you to a primary portal. The follo
 | `爱企查` | Aiqicha, Baidu business-data service | [Commercial platform](https://aiqicha.baidu.com/). Useful for discovery; verify important facts. |
 
 > [!NOTE]
-> **Access friction is the norm here.** The commercial aggregators above increasingly gate detailed records behind login, Chinese mobile-number or real-name verification, paid subscriptions, and rate limits, and they often restrict or degrade access from outside mainland China. The official `gsxt.gov.cn` system commonly requires a sliding-puzzle CAPTCHA. Plan for this, do not bypass the controls, and record any access limitation in your evidence log (Section 23) so gaps in your findings are not mistaken for confirmed absences.
+> **Record access conditions as observations.** These portals may require login, mobile-number or real-name verification, payment, CAPTCHA, or other checks. A browser and a scripted request may encounter different layers. Record the URL, time, client type, network context, visible response, and HTTP status if available. A status code alone does not establish an outage, geographic blocking, a protection vendor, or whether browser access works. Do not bypass controls; unsuccessful access is not evidence that a registry record is absent. See the [validation register](docs/validation.md) and Section 23.6 for the distinction between a reported condition and a reproduced observation.
 
 ## 22.2 Procurement and public-resource transactions
 
@@ -1984,6 +1995,9 @@ Do not automatically equate:
 | social-media repetition | independent corroboration |
 | search warning banner | proof of the reason every result is absent |
 | absence from search results | proof that the event or record does not exist |
+| English-name search hit or matching name field | confirmed Chinese legal entity |
+
+Record candidate retrieval, name-field agreement, and independently corroborated identity separately. Verify the Chinese registered name and identifier against dated primary records before merging identities. A matching English name alone does not establish that two records describe the same entity.
 
 ## 23.4 Three-point identity test
 
@@ -2014,6 +2028,8 @@ For people with common names, a company, university, specialty, city, coauthor, 
 
 ## 23.6 Evidence log template
 
+Download the [blank CSV and field definitions](templates/README.md), or inspect the [completed synthetic example](examples/procurement/README.md). Store observations separately from hypotheses about why a query failed.
+
 | Field | What to record |
 |---|---|
 | Research question | The claim or relationship being tested |
@@ -2021,7 +2037,9 @@ For people with common names, a company, university, specialty, city, coauthor, 
 | English gloss | Translation of the query |
 | Engine or portal | Baidu, Google, Bing, official registry, procurement portal, court portal, etc. |
 | Date and time | Include time zone |
-| Access context | Location, language setting, logged-in or logged-out status if relevant |
+| Access context | Network location if known, language setting, logged-in or logged-out status, and browser/API/script/manual method |
+| Access outcome and evidence | Normal page, accessible with no match, login required, visible CAPTCHA, challenge page/script, rate limit, HTTP error, transport failure, or unknown; record the observed status/message and evidence |
+| Suspected cause | A hypothesis with supporting evidence, separate from the observed outcome; leave unknown when unsupported |
 | Source URL | Exact page or document URL |
 | Issuer / publisher | Organization that issued or published the record |
 | Publication date | Date shown on the source |
@@ -2030,7 +2048,8 @@ For people with common names, a company, university, specialty, city, coauthor, 
 | Original passage | Minimum necessary Chinese text |
 | English translation | Faithful translation with qualifiers preserved |
 | Archive / screenshot | Lawful preserved copy and capture date |
-| Confidence | High, medium, low, or another documented scale |
+| Confidence and basis | High, medium, low, or another documented scale, plus supporting evidence and unresolved identity/status limitations |
+| Record status | Draft, candidate, awarded, corrected, repealed, or another source-specific status; preserve the original qualifier |
 | Contradictions | Conflicting records and how they were resolved |
 | Next step | Additional verification required |
 
@@ -2137,6 +2156,7 @@ Relax one constraint at a time:
 ## Problem: A platform requires login or CAPTCHA
 
 - Do not bypass it.
+- Distinguish an observed login/CAPTCHA/challenge from an HTTP error or transport failure. Record the actual response and client context; do not infer the cause from a status code alone. An accessible search with no match is a different outcome from a search you could not perform.
 - Use public search-engine results, public share URLs, official APIs where available, or lawful manual access.
 - Record that access limitations affected completeness.
 - Search quoted titles, usernames, article IDs, and unique sentences across other public sources.
@@ -2332,6 +2352,9 @@ Start broad. Add one constraint at a time.
 
 # 26. Classroom exercises
 
+Start with the [offline worked procurement exercise](examples/procurement/README.md): three synthetic bilingual notices, a completed evidence log, and an answer key. It requires no live searches or accounts. The scenarios below can then be used for supervised public-source practice.
+
+
 These exercises use fictional or instructor-approved targets. Students should document every query in Chinese and English and cite primary sources.
 
 ## Exercise 1: Domain to legal entity
@@ -2493,6 +2516,14 @@ The operational examples in this guide are designed to be tested against live se
 
 [^baidu-advanced]: Baidu, **百度高级搜索 (Baidu Advanced Search)**, accessed 21 June 2026, https://www.baidu.com/gaoji/advanced.html.
 
+[^baidu-syntax]: Baidu, **网页搜索特色功能介绍 (Web Search Features)**, documentation checked 24 November 2026, https://www.baidu.com/search/page_features.html. This is legacy documentation; it does not establish current live operator behavior.
+
+[^interim-example]: Cyberspace Administration of China and other issuing authorities, **生成式人工智能服务管理暂行办法 (Interim Measures for the Management of Generative AI Services)**, issued July 2023, https://www.cac.gov.cn/2023-07/13/c_1690898327029107.htm. The issuance notice and Article 24 specify 15 August 2023 as the effective date; cited as an example of interim versus draft status.
+
+[^baidu-coordinates]: Baidu Maps Open Platform, **坐标系说明 (Coordinate System Explanation)**, documentation checked 24 November 2026, https://lbsyun.baidu.com/skins/MySkin/resources/iframs/coordinate.html.
+
+[^amap-coordinates]: Amap, **其他坐标转高德坐标 (Convert Other Coordinates to Amap Coordinates)**, documentation checked 24 November 2026, https://developer.amap.com/api/javascript-api-v2/guide/transform/convertfrom.
+
 [^baidu-help]: Baidu, **百度搜索帮助中心—网页搜索帮助 (Baidu Search Help Center — Web Search Help)**, accessed 21 June 2026, https://www.baidu.com/search/page_help.htm.
 
 [^google-refine]: Google, **Refine Google searches**, accessed 21 June 2026, https://support.google.com/websearch/answer/2466433.
@@ -2533,16 +2564,17 @@ The operational examples in this guide are designed to be tested against live se
 
 This guide should be reviewed periodically. Before publishing a revised version:
 
-1. Test the Baidu examples against the live interface.
-2. Confirm that official portal domains still resolve to the issuing authority.
-3. Check whether login, CAPTCHA, geographic, or account requirements have changed.
-4. Update the “Last reviewed” date.
-5. Record material changes in a changelog.
+1. Review the relevant provider documentation and record its check date in [data/validation.json](data/validation.json).
+2. Where lawful access is available, test a benign query in the intended engine/interface. Record the exact query, date, context, and actual observation; leave unperformed live tests explicitly untested.
+3. Review portal destinations and access requirements. A failed automated link check is an observation to investigate, not proof that a portal is dead or geographically blocked.
+4. Regenerate [docs/validation.md](docs/validation.md) and run the offline checks described in [CONTRIBUTING.md](CONTRIBUTING.md). CI checks repository consistency, not live search effectiveness.
+5. Update the editorial-review date only for an editorial review, and individual validation dates only for checks actually performed. Record material changes and contribution credits in [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
 ## Reuse note
 
-This guide is published by Argelius Labs for educational use under the Creative Commons Attribution 4.0 International (CC BY 4.0) license (see [`LICENSE`](LICENSE)). You are free to share and adapt it, including commercially, as long as you give appropriate credit. Before redistributing a modified version, update the author credit, contact information, contribution policy, and the "Last reviewed" date so readers can tell your edition apart from the original.
+This guide is published by Argelius Labs for educational use under the Creative Commons Attribution 4.0 International (CC BY 4.0) license (see [`LICENSE`](LICENSE)). You are free to share and adapt it, including commercially, as long as you give appropriate credit. Before redistributing a modified version, update the author credit, contact information, contribution policy, and the editorial-review date and relevant validation records so readers can tell your edition apart from the original.
 
 If you are reading this as a standalone file, note that it is intended to live in a repository alongside a short [`README.md`](README.md) front door and a [`LICENSE`](LICENSE) file.
+
